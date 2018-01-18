@@ -1,0 +1,159 @@
+//pre-existing entities:
+entity TouchUser {}
+entity Contact {}
+entity Corporate {}
+
+enum GENDER { MALE, FEMALE, UNKNOWN }
+
+entity ClientInfo {
+	gender GENDER
+    dob LocalDate
+    address String
+}
+entity StudentInfo {}
+entity SchoolApplication {}
+
+entity Agency {}
+entity AgencyInfo {
+	name String
+    description String
+    logo String
+}
+entity ClientAgencyInfo {}
+entity AgencyClientInfo {}
+entity Agent {}
+entity AgencyCorporate {}
+
+entity SchoolInfo {
+	name String
+}
+entity AgencySchoolInfo {}
+entity SchoolContact {}
+entity Semester {
+	year Integer
+    term String
+    code String
+    name String
+    description String
+}
+entity ImportantDates {
+	type String
+    impDate LocalDate
+}
+entity SchoolInfoSemester {
+	startDt LocalDate
+    endDt LocalDate
+}
+entity AgencySchoolStudent {}
+entity AgencySchoolStudentSemester {}
+
+// Work Case things
+entity CaseType {
+	name String
+    description String
+}
+entity WorkflowType {
+	name String
+    description String
+}
+entity Task {
+	dueDt ZonedDateTime
+    description String
+}
+entity WorkCase {
+	description String
+}
+entity CaseTeamAgent {}
+entity CaseTeam {}
+entity TeamCase {}
+
+entity AgencyReferral {}
+entity CaseTransfer {}
+
+relationship OneToOne {
+	Agency{agencyInfo} to AgencyInfo
+}
+relationship ManyToOne {
+	ClientInfo{contact} to Contact
+    StudentInfo{clientInfo} to ClientInfo
+    SchoolApplication{studentInfo} to StudentInfo
+    
+    Agent{agency} to Agency
+    Agent{touchUser} to TouchUser
+    
+	ClientAgencyInfo{agency} to Agency
+    ClientAgencyInfo{agencyInfo} to AgencyInfo 
+    
+    AgencyClientInfo{agency} to Agency
+    AgencyClientInfo{clientInfo} to ClientInfo
+  
+  	AgencyCorporate{corporate} to Corporate
+    AgencyCorporate{agency} to Agency
+    AgencyCorporate{agent} to Agent
+  
+  	ImportantDates{semester} to Semester
+    
+  	SchoolContact{schoolInfo} to SchoolInfo
+    
+    SchoolInfoSemester{semester} to Semester
+    SchoolInfoSemester{schoolInfo} to SchoolInfo
+  
+  	AgencySchoolInfo{agency} to Agency
+    AgencySchoolInfo{schoolInfo} to SchoolInfo
+  
+  	AgencySchoolStudent{agencySchoolInfo} to AgencySchoolInfo
+    AgencySchoolStudent{agencyClientInfo} to AgencyClientInfo
+    
+    AgencySchoolStudentSemester{agencySchoolStudent} to AgencySchoolStudent
+    AgencySchoolStudentSemester{schoolInfoSemester} to SchoolInfoSemester
+    
+    // Work Case
+    
+    WorkflowType{caseType} to CaseType
+    
+    AgencyReferral{workCase} to WorkCase
+    AgencyReferral{clientAgencyInfo} to ClientAgencyInfo
+    
+    Task{agent} to Agent
+    
+    WorkCase{task} to Task
+    WorkCase{caseType} to CaseType
+    TeamCase{caseType} to CaseTeam
+    CaseTeamAgent{team} to CaseTeam
+    CaseTeamAgent{agent} to Agent
+    
+    CaseTransfer{originalCase} to WorkCase
+    CaseTransfer{targetCase} to WorkCase
+    CaseTransfer{targetAgency} to Agency   
+    
+}
+
+relationship OneToOne {
+	TeamCase{workCase} to WorkCase
+}
+
+// Document
+entity Document {}
+entity TypicalDocument {
+	issuedPlace String
+    issuedDt LocalDate
+    expiryDt LocalDate
+    referenceNo String
+}
+entity Visa {}
+entity Passport {}
+relationship OneToOne {
+	TypicalDocument{document} to Document
+    Visa{typicalDocument} to TypicalDocument
+    Passport{typicalDocument} to TypicalDocument
+}
+
+// Set pagination options
+paginate * with infinite-scroll
+paginate * with pagination
+dto * with mapstruct
+
+// Set service options to all except few
+service all with serviceImpl
+// Set an angular suffix
+angularSuffix * with mySuffix
